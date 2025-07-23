@@ -1,0 +1,51 @@
+<!-- Icône de chat flottant -->
+<div id="chat-icon" style="position: fixed; bottom: 20px; right: 20px; background-color: #007bff; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 9999;">
+    💬
+</div>
+
+
+<!-- Fenêtre de chat -->
+<div id="chat-box" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; border-radius: 10px; z-index: 9999; display: flex; flex-direction: column;">
+    <div style="background: #007bff; color: white; padding: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;">Chatbot FORCE-N</div>
+    <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; font-size: 14px;"></div>
+    <div style="display: flex; border-top: 1px solid #ccc;">
+        <input id="chat-input" type="text" placeholder="Pose ta question..." style="flex: 1; padding: 10px; border: none; outline: none;">
+        <button onclick="sendMessage()" style="padding: 10px; background: #007bff; color: white; border: none;">Envoyer</button>
+    </div>
+</div>
+
+<script>
+    const chatIcon = document.getElementById("chat-icon");
+    const chatBox = document.getElementById("chat-box");
+    const chatMessages = document.getElementById("chat-messages");
+
+    chatIcon.onclick = () => {
+        chatBox.style.display = chatBox.style.display === "none" ? "flex" : "none";
+    };
+
+    function appendMessage(sender, text) {
+        const msg = document.createElement("div");
+        msg.textContent = `${sender} : ${text}`;
+        msg.style.margin = "5px 0";
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendMessage("Vous", message);
+        input.value = "";
+
+        const response = await fetch("http://localhost:5000/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        appendMessage("FORCEN", data.response);
+    }
+</script>
